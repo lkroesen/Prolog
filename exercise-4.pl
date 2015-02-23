@@ -45,7 +45,7 @@
  note(bob).   % 7
  % Set a constant that bob has a note
  
- drive(X,Y) :- not(note(X)), has_license(X, Y). % 7
+ drive(X,Y) :- has_license(X, Y), \+ note(X). % 7
  % Define a rule that X is allowed to drive Y, if X does not have a note
  % and if X have a license for Y.
  
