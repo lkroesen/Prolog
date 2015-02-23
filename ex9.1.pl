@@ -9,11 +9,12 @@ q(X,f(X)).
 % An explanation to this diffrence is that f(X) contains a variable (uppercase X)
 % and f(a) does not contain a variable, so when asking prolog if pred(f(X)) which would mean:
 % pred(X). X = f(X), then we check q(X,X) to our constant q(X,f(X)). so then q(X,f(X)). becomes:
-% q(f(X),f(X)) which when going back to our first rule of: pred(X):-q(X,X).
-% means that to complete that statement our variable has to be f(X), resulting in what we get returned from prolog
-% which is X = f(X).
+% q(f(f(f( until infinity... ),f(f(f( until infinity...   ))
+% so, in order to make both of these keep filing each other in until infinity, value to be inputed
+% as X has to be f(X), so that even though they go on infinity, they will go on equally infinity. 
 % -----
-% With pred(f(a)). we compare q(f(a),(f(f(a))) which is not the same so our rule of:
+% With pred(f(a)). we compare q(f(a),(f(f(a))) which can never be fufiled because we cannot fill in a to another f meaning,
+% that these are not equal meaning our pred is not correct. 
 % pred(X):-q(X,X). is not true, resulting in prolog returning a false.
 
 
