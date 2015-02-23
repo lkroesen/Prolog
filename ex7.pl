@@ -12,5 +12,5 @@ above(X, Y, Value, Accumulator) :- on(X, Z), above(Z, Y, N, Accumulator), Value 
 
 atLeastThree(X) :- above(X, _, Z, 0), Z >= 3.
 
-exactlyThree(X) :- above(X, _, Z, 0), Z >= 3, Z < 4.
+exactlyThree(X) :- above(X, _, Z, 0), Z =:= 3.
 %DOESNT WORK CORRECTLY YET.
