@@ -13,8 +13,7 @@ q(X,f(X)).
 % so, in order to make both of these keep filing each other in until infinity, value to be inputed
 % as X has to be f(X), so that even though they go on infinity, they will go on equally infinity. 
 % -----
-% With pred(f(a)). we compare q(f(a),(f(f(a))) which can never be fufiled because we cannot fill in a to another f meaning,
-% that these are not equal meaning our pred is not correct. 
-% pred(X):-q(X,X). is not true, resulting in prolog returning a false.
-
+% With pred(f(a)) we try to prove the implication so we get q(f(a), f(a)).
+% which is wrong because for the implication to be true we'd need to input the input of the input of the etc...
+% which we cannot do with f(a). resulting in false.
 
