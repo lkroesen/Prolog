@@ -28,7 +28,7 @@ q(X,f(X)).
 % false.
 
 % Explanation:
-% we call pred(f(a)) and it's implication , we unify the implication
+% we call pred(f(a)) and its implication , we unify the implication
 % we call the q(X, f(X)).
 % check the q(f(a), f(a)). which fails, because to be true it'd have to be a(f(a), f(f(a)))
 % so we fail the rule, and we get false as result.
