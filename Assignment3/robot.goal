@@ -44,13 +44,15 @@ init module {
 		% Exercise 2.3c: insert a specification for the putDown action.
 		putDown{
 			pre{(holding(Block), at(DropZone))}
-			post{(not(holding(Block)))}
+			%Don't need an other post because putDown is predefined
+			post{ true }
 		}
 	}
 }
 
 main module [exit=nogoals] {
 	program {
+		%Original goal
 		if a-goal( in(Place) ) then goTo(Place) + goToBlock(Block) + pickUp + putDown.
 		% Exercise 2.5a: insert code for action rules that allows an agent to systematically search for blocks.
 
@@ -69,24 +71,31 @@ event module {
 		forall bel( percept(in(Place)) ) do insert( in(Place) ).
 		forall bel( percept(not(in(Place))) ) do delete( in(Place) ).
 		
+		%Record when we are at a place.
 		if bel( percept (in(Place)) ) then insert(at(Place)).
 		if bel( percept (not(in(Place))) ) then delete(at(Place)).
 		
+		%Record what our current place is (if we are in a place).
 		if bel( percept (in(Place)) ) then insert (place(Place)).
 		if bel( percept (not(in(Place))) ) then delete (place(Place)).
 		
+		%Record when we are in a room with a certain block.
 		forall bel( percept (atBlock(BlockID)) ) do insert (atBlock(BlockID)).
 		forall bel( percept (not(atBlock(BlockID))) ) do delete (atBlock(BlockID)).
 		
+		%Record which block has which color
 		forall bel( percept (color(BlockID, ColorID)) ) do insert (color(BlockID, ColorID)).
 		forall bel( percept (not(color(BlockID, ColorID))) ) do delete (color(BlockID, ColorID)).
 		
+		%Record if the agent is holding a block.
 		if bel(percept (holding(BlockID)) ) then insert (holding(BlockID)).
 		if bel(percept (not(holding(BlockID))) ) then delete (holding(BlockID)).
 		
+		%Record which block in the sequence of blocks is needed.
 		if bel(percept (sequenceIndex(Integer)) ) then insert (sequenceIndex(Integer)).
 		if bel(percept (not(sequenceIndex(Integer))) ) then delete (sequenceIndex(Integer)).
 		
+		%Record what block is located where.
 		forall bel(percept (at(Place)), percept(color(BlockID, ColorID))) do insert (blockAtLocation(BlockID, ColorID, Place)).
 		%To add when holding blocks
 		% Exercise 2.1b: insert rules for handling percepts other than "sendonce" percepts.
