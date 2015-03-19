@@ -1,0 +1,36 @@
+Exercise 1
+1)
+First try:		Second try:		Third try:
+A1			       C2			       Dropzone
+A2			      Dropzone		    A1
+B2			      C1		        	C3
+Dropzone		  B3	        		B2
+C3		      	B2		        	A2
+C2	      		A3		          B3
+A3		       	A1		        	B1
+B3	      		B1		        	A3
+C1	      		A2	        		C1
+B1		      	C3	        		C2
+
+The agent did not visit the same room twice in a single run.
+
+2)
+Line 44, because the Place in the achievement goals is a variable. Because Place is a variable, a different room is (randomly) entered as the value for Place each time. Because of this, the agent will visit every room once.
+
+3)
+The agent goes to every room in the environment. After he completed this, the agent gets killed. This is because if the agents goal is in(Place), then he executes goTo(Place). As Place is a variable, all the different Places (in other words, all the rooms) will get visited, because all the different values will be entered for Place.
+
+4)
+The predicate state/1 is used to keep track of the state of movement of the agent. In the init module, this predicate is used in the goTo/1 predicate, where the agent has to stand still to execute goTo. If goTo is executed, the state of the agent changes to traveling. In the event module, the state can be updated in line 57.
+
+5)
+No, because in line 4 the general layout of the map is defined.
+
+6a)
+Say the Search and Rescue mission is about saving victims in a hostile building. The rooms represent the rooms in the building where the victims are. The blocks represent the victims and the dropzone represents the safe zone where the hostages should be rescued to. The robot is the rescuer. In a real life Search and Rescue mission, the mission of the rescuer is to take (certain) victims to the safe zone. This is the same principal as with this BW4T environment. Here, the agent collects blocks from the rooms and takes them to the dropzone.
+
+6b)
+With this BW4T environment, the agents takes blocks to the dropzone. However, the agent does not take all the blocks with him and he takes the blocks with him in a specific order. In real life, this probably would not be the case. There, the rescuer would take all the victims to the safe zone and not in a specific order.
+
+Exercise 2
+
