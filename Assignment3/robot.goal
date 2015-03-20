@@ -2,10 +2,15 @@ init module {
 	knowledge {
 		% A room is a place with exactly one neighbour, i.e., there is only one way to get to and from that place.
 		room(PlaceID) :- zone(_,PlaceID,_,_,Neighbours), length(Neighbours,1).
-
+                
+                % Exercice 2.2, element finder
+                nthOut(In, Out, Nmr) :- nthFind(In, Out, Nmr, 0).
+ 		nthFind([X|_], X, NeededNmr, NeededNmr).
+ 		nthFind([_|Tail], Out, NeededNmr, Count) :- Count < NeededNmr, NewNmr is Count + 1, nthFind(Tail, Out, NeededNmr, NewNmr).
+		
 		% Exercise 2.2: insert a definition of the predicate "nextColorInSeq(Color)".
 		%TODOOO 2.2
-		nextColorInSeq(Color) :- sequenceIndex(Integer), sequence(Color).
+		nextColorInSeq(Color) :- sequenceIndex(Integer), sequence(Sequence), nthOut(Sequence,Color,Integer).
 		% Exercise 2.5 + 2.6: (optional) if needed, insert additional knowledge here.
 		
 	}
