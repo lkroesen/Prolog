@@ -9,7 +9,6 @@ init module {
  		nthFind([_|Tail], Out, NeededNmr, Count) :- Count < NeededNmr, NewNmr is Count + 1, nthFind(Tail, Out, NeededNmr, NewNmr).
 		
 		% Exercise 2.2: insert a definition of the predicate "nextColorInSeq(Color)".
-		%TODOOO 2.2
 		nextColorInSeq(Color) :- sequenceIndex(Integer), sequence(Sequence), nthOut(Sequence,Color,Integer).
 		% Exercise 2.5 + 2.6: (optional) if needed, insert additional knowledge here.
 		
