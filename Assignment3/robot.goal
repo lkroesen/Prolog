@@ -37,13 +37,13 @@ init module {
 
 		% Exercise 2.3a: insert a specification for the goToBlock(Block) action.
 		goToBlock(Block){
-			pre { blockAtLocation(Block,Color,Place), at(Place) }
+			pre { blockAtLocation(Block,Color,Place), (not(atBlock(Block))), at(Place) }
 			post{ true }
 		}
 		% Exercise 2.3b: insert a specification for the pickUp action.
 		pickUp{
-			pre{atBlock(Block), not(holding(_))}
-			post{(holding(Block))}
+			pre{ at(Place), nextColorInSeq(Color), color(Block,Color) }
+			post{(holding(Block), not(atBlock(Block))))}
 		}
 		% Exercise 2.3c: insert a specification for the putDown action.
 		putDown{
@@ -63,10 +63,9 @@ main module [exit=nogoals] {
 		% If at the place where I am now I see a block that I need, go to that block
 		
 		% This should work but it DOES NOT
-		if bel(at(Place), nextColorInSeq(Color), blockAtLocation(Block,Color,Place), not(state(travelling))) then goToBlock(Block).
-		
+		if bel(at(Place), nextColorInSeq(Color), color(Block,Color), not(atBlock(Block)) not(state(travelling))) then goToBlock(Block).
 		% If I'm at a Block then I want to pick it up
-		%if bel(atBlock(Block)) then pickUp.
+		if bel(atBlock(Block)) then pickUp.
 		
 		% Now that I'm holding a block I must return it to the DropZone
 		%if bel(holding(Block)) then goTo('DropZone').
@@ -122,6 +121,7 @@ event module {
 		
 		%Record what block is located where.
 		forall bel(percept (at(Place)), percept(color(BlockID, ColorID))) do insert (blockAtLocation(BlockID, ColorID, Place)).
+		forall bel(percept (not(at(Place))), percept(not(color(BlockID, ColorID))) ) do delete (blockAtLocation(BlockID, ColorID, Place)).
 		%To add when holding blocks
 		% Exercise 2.1b: insert rules for handling percepts other than "sendonce" percepts.
 		
