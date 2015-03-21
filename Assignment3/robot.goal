@@ -101,9 +101,11 @@ event module {
 		if bel(atBlock(Block), nextColorInSeq(Color), color(Block,Color)) then pickUp.
 		
 		% If he's holding a block that he needs then he needs to go to the DropZone
+		% 2.6 block delivery
 		if bel(holding(Block), nextColorInSeq(Color), blockAtLocation(Block,Color,Place)) then goTo('DropZone').
 		
 		% If he's holding a block which is the colour we need and he is in the dropzone then he needs to put it down.
+		% 2.6 block delivery
 		if bel(holding(Block), nextColorInSeq(Color), blockAtLocation(Block,Color,Place), in('DropZone')) then putDown.
 		
 	    % Update the agent's state of movement.
