@@ -36,7 +36,7 @@ init module {
 
 		% Exercise 2.3a: insert a specification for the goToBlock(Block) action.
 		goToBlock(Block){
-			pre { blockAtLocation(Block,Color,Place), (not(atBlock(Block))), at(Place) }
+			pre { blockAtLocation(Block,Color,Place), (not(atBlock(Block))), in(Place) }
 			post{ true }
 		}
 		% Exercise 2.3b: insert a specification for the pickUp action.
@@ -57,7 +57,7 @@ main module [exit=nogoals] {
 		%Original goal
 		
 		% Go to a place if we have not visited it.
-		if a-goal( in(Place) ), bel(not(visited(Place))) then goTo(Place).
+		if a-goal( in(Place) ) then goTo(Place).
 						
 		% If at the place where I am now I see a block that I need, go to that block
 		
@@ -78,7 +78,7 @@ main module [exit=nogoals] {
 		%%if a-goal(holding(Block)), bel(blockAtLocation(Block,_,Room), in(Room)) then goToBlock(Block).
 		
 		% Exercise 2.5a: insert code for action rules that allows an agent to systematically search for blocks.
-		if bel( visited(Place), blockAtLocation(Block,Color,Place), nextColorInSeq(Color)) then adopt(goTo(Place)).
+		%if bel( visited(Place), blockAtLocation(Block,Color,Place), nextColorInSeq(Color)) then adopt(goTo(Place)).
 		
 		
 		% If you're in a room that has a block of the Color you need then goTo that block.
@@ -91,6 +91,9 @@ main module [exit=nogoals] {
 
 event module {
 	program {
+		
+		% This doesn't work yet, but it works kinda
+		if bel(in(Place), nextColorInSeq(Color), color(Block,Color), not(holding(_))) then goToBlock(Block).
 		
 		% THESE LINES OF CODE WORK DON'T CHANGE
 		
