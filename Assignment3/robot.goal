@@ -4,14 +4,14 @@ init module {
 		room(PlaceID) :- zone(_,PlaceID,_,_,Neighbours), length(Neighbours,1).
                 
                 % Exercice 2.2, element finder
-                nthOut(In, Out, Nmr) :- nthFind(In, Out, Nmr, 0).
+        nthOut(In, Out, Nmr) :- nthFind(In, Out, Nmr, 0).
  		nthFind([X|_], X, NeededNmr, NeededNmr).
  		nthFind([_|Tail], Out, NeededNmr, Count) :- Count < NeededNmr, NewNmr is Count + 1, nthFind(Tail, Out, NeededNmr, NewNmr).
 		
 		% Exercise 2.2: insert a definition of the predicate "nextColorInSeq(Color)".
 		nextColorInSeq(Color) :- sequenceIndex(Integer), sequence(Sequence), nthOut(Sequence,Color,Integer).
 		% Exercise 2.5 + 2.6: (optional) if needed, insert additional knowledge here.
-		
+		holding(Block) :- holding(Block).		
 	}
 	program {
 		% Store map information, i.e., navigation points in the agent's belief base.
@@ -30,26 +30,25 @@ init module {
 	actionspec {
 		% The goTo action makes the agent move to a place (location) in the BW4T environment.
 		% As long as the agent has not arrived at the place it is going to, it will be in "traveling" mode.
-		goTo(Id) {
+		goTo(Place) {
             pre { not(state(traveling)) }
 			post { true }
 		}
 
 		% Exercise 2.3a: insert a specification for the goToBlock(Block) action.
 		goToBlock(Block){
-			pre { not(state(traveling)), at(Place), blockAtLocation(Block,_,Place)}
+			pre { blockAtLocation(Block,Color,Place), at(Place) }
 			post{ true }
 		}
 		% Exercise 2.3b: insert a specification for the pickUp action.
 		pickUp{
-			pre{(atBlock(Block), not(holding(_))))}
+			pre{atBlock(Block), not(holding(_))}
 			post{(holding(Block))}
 		}
 		% Exercise 2.3c: insert a specification for the putDown action.
 		putDown{
-			pre{(holding(Block), at(DropZone))}
-			%Don't need an other post because putDown is predefined
-			post{ true }
+			pre{(holding(Block), at('DropZone'))}
+			post{ (not(holding(Block))) }
 		}
 	}
 }
@@ -57,7 +56,29 @@ init module {
 main module [exit=nogoals] {
 	program {
 		%Original goal
-		if a-goal( in(Place) ) then goTo(Place) + goToBlock(Block) + pickUp + putDown.
+		
+		% Go to a place
+		if a-goal( in(Place) ) then goTo(Place).
+						
+		% If at the place where I am now I see a block that I need, go to that block
+		
+		% This should work but it DOES NOT
+		if bel(at(Place), nextColorInSeq(Color), blockAtLocation(Block,Color,Place), not(state(travelling))) then goToBlock(Block).
+		
+		% If I'm at a Block then I want to pick it up
+		%if bel(atBlock(Block)) then pickUp.
+		
+		% Now that I'm holding a block I must return it to the DropZone
+		%if bel(holding(Block)) then goTo('DropZone').
+		
+		% If I'm in the DropZone, and am Holding a block, then I want to put it Down
+		%if bel(in('DropZone'), holding(Block)) then putDown.
+		
+		
+		%if a-goal(in(Place)) then goTo(Place).
+		%%not(state(traveling)), at(Place), blockAtLocation(Block,_,Place), color(Block,Color), nextColorInSeq(Color))}
+		%%if a-goal(holding(Block)), bel(blockAtLocation(Block,_,Room), in(Room)) then goToBlock(Block).
+		
 		% Exercise 2.5a: insert code for action rules that allows an agent to systematically search for blocks.
 
 		% Exercise 2.6a: insert code for action rules that makes the agent deliver a block when it 
