@@ -11,6 +11,9 @@ init module {
 		% Exercise 2.2: insert a definition of the predicate "nextColorInSeq(Color)".
 		nextColorInSeq(Color) :- sequenceIndex(Integer), sequence(Sequence), nthOut(Sequence,Color,Integer).
 		% Exercise 2.5 + 2.6: (optional) if needed, insert additional knowledge here.	
+		dropOffBlock(X) :- blockAtLocation(X,_,'DropZone').
+		done :- sequenceIndex(Integer), sequence(X), length(X,L), Integer=:=L.
+
 	}
 	program {
 		% Store map information, i.e., navigation points in the agent's belief base.
@@ -20,7 +23,7 @@ init module {
 		if bel( percept(state(State)) ) then insert( state(State) ).
 		
 		% Adopt initial goals.
-		forall bel( room(Place) ) do adopt( in(Place) ).
+		%forall bel( room(Place) ) do adopt( in(Place) ).
 
 		% Exercise 2.1a: insert rules for processing percepts that are sent only at the beginning of a session, 
 		%  and/or need to be initialized.
@@ -36,12 +39,12 @@ init module {
 
 		% Exercise 2.3a: insert a specification for the goToBlock(Block) action.
 		goToBlock(Block){
-			pre { blockAtLocation(Block,Color,Place), (not(atBlock(Block))), in(Place) }
+			pre { blockAtLocation(Block,Color,Place), in(Place), not(holding(_)) }
 			post{ true }
 		}
 		% Exercise 2.3b: insert a specification for the pickUp action.
 		pickUp{
-			pre{ at(Place), nextColorInSeq(Color), color(Block,Color) }
+			pre{ at(Place), nextColorInSeq(Color), color(Block,Color), atBlock(Block), not(holding(_)) }
 			post{(holding(Block), not(color(Block,Color)), not(atBlock(Block))))}
 		}
 		% Exercise 2.3c: insert a specification for the putDown action.
@@ -58,9 +61,16 @@ main module [exit=nogoals] {
 		
 		% Go to a place if we have not visited it.
 		if a-goal( in(Place) ) then goTo(Place).
-						
-		% If at the place where I am now I see a block that I need, go to that block
+		if a-goal( dropOffBlock(Block)), bel(blockAtLocation(Block,_,Place), not(holding(_))) then adopt(in(Place)).
+		if a-goal( dropOffBlock(Block)), bel(blockAtLocation(Block, Color, Place), color(Block, Color), in(Place), not(holding(_))) then goToBlock(Block).
+		if a-goal( dropOffBlock(Block)), bel(atBlock(Block), not(holding(_))) then pickUp.
+		if a-goal( dropOffBlock(Block)), bel(holding(_)) then goTo('DropZone').
+		if a-goal( dropOffBlock(Block)), bel(at('DropZone')) then putDown.
+		%if a-goal( holding(Block)) then goToBlock(Block).
 		
+		%if a-goal( true ) then print(sequenceIndex(Integer)).
+		
+		% If at the place where I am now I see a block that I need, go to that block
 		% This should work but it DOES NOT
 		
 		% If I'm at a Block then I want to pick it up
@@ -92,17 +102,31 @@ main module [exit=nogoals] {
 event module {
 	program {
 		
+		
+		
+		if bel(not(in(Room)), not(dropOffBlock(Block)), room(Room), not(visited(Room)) ) then adopt(in(Room)).
+		
+		if bel(not(dropOffBlock(Block)), color(Block, ColorID), blockAtLocation(Block, ColorID, Location), nextColorInSeq(ColorID) ) then adopt(dropOffBlock(Block)).
+		
+		
+		%if bel(not(a-goal(in(Place)), not(dropOffBlock(Block)), not(done()), room(Room), not(visited(Room)))) then adopt(in(Room)).
+		
+		%if bel(color(BlockID, ColorID), blockAtLocation(BlockID, Location, ColorID), not(dropOffBlock(BlockID))) then adopt(dropOffBlock(BlockID)).
+		%if bel(not(goal(in(Place), not(dropOffBlock(Block), not(done()), room(X), not(visited(X)))))) then adopt(in(X)).
+		
 		% This doesn't work yet, but it works kinda
-		if bel(in(Place), nextColorInSeq(Color), color(Block,Color), not(holding(_))) then goToBlock(Block).
+		%if bel(in(Place), nextColorInSeq(Color), color(Block,Color), not(holding(_))) then goToBlock(Block).
 		
 		% THESE LINES OF CODE WORK DON'T CHANGE
 		
 		% If the robot is at a block which is the one he needs, then he needs to pick it up
-		if bel(atBlock(Block), nextColorInSeq(Color), color(Block,Color)) then pickUp.
+		%if bel(atBlock(Block), nextColorInSeq(Color), color(Block,Color)) then pickUp.
+		
+		%if bel( percept(sequenceIndex(Integer)) ) then insert(sequenceIndex(Integer)).
 		
 		% If he's holding a block that he needs then he needs to go to the DropZone
 		% 2.6 block delivery
-		if bel(holding(Block), nextColorInSeq(Color), blockAtLocation(Block,Color,Place)) then goTo('DropZone').
+	%	if bel(holding(Block), nextColorInSeq(Color), blockAtLocation(Block,Color,Place)) then goTo('DropZone').
 		
 		% If he's holding a block which is the colour we need and he is in the dropzone then he needs to put it down.
 		% 2.6 block delivery
