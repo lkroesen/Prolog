@@ -4,7 +4,7 @@ init module {
 		room(PlaceID) :- zone(_,PlaceID,_,_,Neighbours), length(Neighbours,1).
                 
                 % Exercice 2.2, element finder
-        nthOut(In, Out, Nmr) :- nthFind(In, Out, Nmr, 0).
+        nthOut(In, Out, Nmr) :- nthFind(In, Out, 0, Nmr).
  		nthFind([X|_], X, NeededNmr, NeededNmr).
  		nthFind([_|Tail], Out, NeededNmr, Count) :- Count < NeededNmr, NewNmr is Count + 1, nthFind(Tail, Out, NeededNmr, NewNmr).
 		
