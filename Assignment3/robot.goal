@@ -42,7 +42,7 @@ init module {
 		% Exercise 2.3b: insert a specification for the pickUp action.
 		pickUp{
 			pre{ at(Place), nextColorInSeq(Color), color(Block,Color) }
-			post{(holding(Block), not(atBlock(Block))))}
+			post{(holding(Block), not(color(Block,Color)), not(atBlock(Block))))}
 		}
 		% Exercise 2.3c: insert a specification for the putDown action.
 		putDown{
