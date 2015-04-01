@@ -50,7 +50,7 @@ init module {
 		}
 		% Exercise 2.3c: insert a specification for the putDown action.
 		putDown{
-			pre{ holding(_), in('DropZone')  }
+			pre{ holding(_) }
 			post{  not(holding(_)) }
 		}
 	}
@@ -126,6 +126,14 @@ event module {
 		forall bel(percept (at(Place)), percept(color(BlockID, _))) do insert (block(BlockID, Place)).
 		forall bel(percept (not(at(Place))), percept(not(color(BlockID, _))) ) do delete (block(BlockID, Place)).
 		
+		%If you receive a message from an agent being in a place, don't go to that place.
+		if bel(received(_, in(Place))) then drop(in(Place)).
+		
+		if bel(received(_, color(Block, Color))) then insert(color(Block, Color)).
+		if bel(received(_, block(Block, Place))) then insert(block(Block, Place)).
+		
+		if bel(received(_, holding(Block))) then drop(atBlock(Block)).
+		if bel(received(_, holding(Block))) then drop(holding(Block)).
 		%If the agent knows there is a block in a place which we need and he is not holding a block, he needs to hold it.
 		if bel(block(Block, Place), realColor(Color), color(Block, Color),  not(holding(_))), not(goal(holding(_))) then adopt(holding(Block)).
 		
@@ -142,7 +150,8 @@ event module {
 		if bel(holding(_)) then adopt(in('DropZone')).
 		
 		% If he's holding a block and he is in the dropzone then he needs to put it down.
-		if bel(holding(Block), in('DropZone')) then putDown.
+		if bel(holding(Block), in('DropZone'), color(Block, Color), realColor(Color)) then putDown.
+		if bel(holding(Block), color(Block, Color), not(realColor(Color)), in(Place), not(in('DropZone'))) then putDown.
 		
 		%If the agent knows there is a block in a room that he needs, then prioritise going to that room.
 		if bel(realColor(Color), block(Block, Place), color(Block, Color)), goal(not(at(Place))), not(goal(at(_))) then adopt (at(Place)).
@@ -150,6 +159,14 @@ event module {
 		if goal(holding(Block)), bel( percept(not (block(Block, Place))), at(Place)) then drop(holding(Block)).
 		
 		if bel(sequence(Colors),length(Colors,L),sequenceIndex(L)), goal(in(Place)) then drop(in(Place)).
+		
+		if bel(in(Place)) then allother.send(in(Place)).
+		
+		if bel(in(Place), block(Block, Place), color(Block, Color)) then allother.send(block(Block, Place)) + allother.send(color(Block, Color)).
+		
+		if bel(holding(Block)) then allother.send(holding(Block)).
+		
+		
 		
 	}
 }
