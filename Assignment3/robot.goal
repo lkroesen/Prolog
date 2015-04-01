@@ -147,5 +147,9 @@ event module {
 		%If the agent knows there is a block in a room that he needs, then prioritise going to that room.
 		if bel(realColor(Color), block(Block, Place), color(Block, Color)), goal(not(at(Place))), not(goal(at(_))) then adopt (at(Place)).
 		
+		if goal(holding(Block)), bel( percept(not (block(Block, Place))), at(Place)) then drop(holding(Block)).
+		
+		if bel(sequence(Colors),length(Colors,L),sequenceIndex(L)), goal(in(Place)) then drop(in(Place)).
+		
 	}
 }
