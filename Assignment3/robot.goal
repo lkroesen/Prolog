@@ -78,6 +78,7 @@ main module [exit=nogoals] {
 
 event module {
 	program {
+		
 	    %update the agent's state of movement.
 		forall bel( state(State), percept(state(NewState)) ) do delete( state(State) ) + insert( state(NewState) ).
 		
@@ -126,47 +127,69 @@ event module {
 		forall bel(percept (at(Place)), percept(color(BlockID, _))) do insert (block(BlockID, Place)).
 		forall bel(percept (not(at(Place))), percept(not(color(BlockID, _))) ) do delete (block(BlockID, Place)).
 		
-		%If you receive a message from an agent being in a place, don't go to that place.
-		if bel(received(_, in(Place))) then drop(in(Place)).
 		
+		%If you receive a message from an agent being in a place, don't go to that place.
+		% unless that place is the dropzone
+		if bel(received(_, in(Place)), not(in('DropZone'))) then drop(in(Place)).		
+		
+		% If we receive a message about color() then we insert this into our belief base
 		if bel(received(_, color(Block, Color))) then insert(color(Block, Color)).
+		% If we receivee message about block() we insert it into our belief base
 		if bel(received(_, block(Block, Place))) then insert(block(Block, Place)).
 		
+		% If we receive that a robot is wants to hold a block then we do not want to hold that block
 		if bel(received(_, holding(Block))) then drop(atBlock(Block)).
 		if bel(received(_, holding(Block))) then drop(holding(Block)).
+		
+		% If we receive a message that a robot is holding a block, then we no longer care about this block
+		if bel(received(_, holding(Block)), color(Block,Color)) then delete(color(Block,Color)).
+		if bel(received(_, holding(Block)), block(Color,Block)) then delete(block(Color,Block)).
+		
 		%If the agent knows there is a block in a place which we need and he is not holding a block, he needs to hold it.
-		if bel(block(Block, Place), realColor(Color), color(Block, Color),  not(holding(_))), not(goal(holding(_))) then adopt(holding(Block)).
+		if bel(block(Block, Place), realColor(Color), color(Block, Color),  not(holding(_))), not(goal(holding(_))) then adopt(holding(Block)) + allother.send(holding(Block)).
 		
 		%If the agent has to hold a block and he is not in the place where the block is and he is not holding a block, then he needs to go to the place.
-		if goal(holding(Block)), bel(not(block(Block, Place)), not(holding(_)), at(Place)) then adopt(in(Place)).
+		if goal(holding(Block)), bel(not(block(Block, Place)), not(holding(_)), in(Place)) then adopt(at(Place)).
 		
 		%If the agent wants to hold a wanted block and he is at the place of the block and it is the right color, then he has to be at the block.
 		if goal(holding(Block)), bel(block(Block, Place), not(holding(_)), color(Block, Color), realColor(Color)), not(goal(atBlock(_))) then adopt (atBlock(Block)).
 		
 		% If the robot is at a block which is the one he needs, then he needs to pick it up.
-		if bel(atBlock(Block), realColor(Color), color(Block,Color)), goal(holding(Block)) then pickUp.
+		if bel(atBlock(Block), realColor(Color), color(Block,Color)), goal(holding(Block)) then pickUp + allother.send(holding(Block)).
 		
 		%If the agent is holding something, go to the drop zone (prioritised in the program).
 		if bel(holding(_)) then adopt(in('DropZone')).
 		
 		% If he's holding a block and he is in the dropzone then he needs to put it down.
 		if bel(holding(Block), in('DropZone'), color(Block, Color), realColor(Color)) then putDown.
-		if bel(holding(Block), color(Block, Color), not(realColor(Color)), in(Place), not(in('DropZone'))) then putDown.
+		% If he's holding a block that he does not need to hand in he needs to put it down in a place, When he puts it down in a place, notify the other robots of this change..
+		if bel(holding(Block), color(Block, Color), not(realColor(Color)), in(Place), not(in('DropZone'))) then putDown + allother.send(color(Block,Color)) + allother.send(block(Block,Place)).
+
+		
+		if bel(in('DropZone'), realColor(Color), color(Block,Color), block(Block,Place)) then adopt(at(Place)).
+		
 		
 		%If the agent knows there is a block in a room that he needs, then prioritise going to that room.
 		if bel(realColor(Color), block(Block, Place), color(Block, Color)), goal(not(at(Place))), not(goal(at(_))) then adopt (at(Place)).
 		
 		if goal(holding(Block)), bel( percept(not (block(Block, Place))), at(Place)) then drop(holding(Block)).
 		
+		% Lets robots stop
 		if bel(sequence(Colors),length(Colors,L),sequenceIndex(L)), goal(in(Place)) then drop(in(Place)).
+		if bel(sequence(Colors),length(Colors,L),sequenceIndex(L)), goal(in(Place)) then drop(at(Place)).
 		
+		
+		% If we're in a place then we tell the other robots we are
 		if bel(in(Place)) then allother.send(in(Place)).
+		
+		% If we want to be at() somewhere we tell the other robots we want to do that so they don't have to
+		if goal(at(Place)) then allother.send(at(Place)).
 		
 		if bel(in(Place), block(Block, Place), color(Block, Color)) then allother.send(block(Block, Place)) + allother.send(color(Block, Color)).
 		
 		if bel(holding(Block)) then allother.send(holding(Block)).
 		
-		
+		if bel(in(Place), sequence(Colors),not(length(Colors,L)),sequenceIndex(L)) then adopt(not(in(Place))).
 		
 	}
 }
